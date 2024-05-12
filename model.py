@@ -60,6 +60,5 @@ class LanguageDetectorManager():
             batch_idxs, batch_freq, batch_labels = eval_batches[i]
             output = self.model(batch_idxs, batch_freq)
             test_acc += torch.sum(torch.argmax(output, dim=1) == batch_labels)
-            print(torch.argmax(output, dim=1), batch_labels)
 
         print(f'Test Acc: {test_acc / len(eval_labels)}')
