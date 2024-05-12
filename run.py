@@ -34,6 +34,6 @@ OUTPUT_SIZE = np.unique(labels).shape[0]
 
 ldm = LanguageDetectorManager(MAX_N_GRAMS, HASH_MAP_SIZE, EMBEDDING_SIZE, HIDDEN_SIZE, OUTPUT_SIZE, LEARNING_RATE)
 ldm.fit(train_data, train_freq, train_labels, BATCH_SIZE)
-ldm.train(NUM_EPOCHS)
 ldm.set_eval_data("test set", test_data, test_freq, test_labels)
+ldm.train(NUM_EPOCHS)
 ldm.eval("test set")
