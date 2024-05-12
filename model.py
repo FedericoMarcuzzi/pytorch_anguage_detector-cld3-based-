@@ -29,10 +29,10 @@ class LanguageDetectorManager():
         self.model = LanguageDetector(max_n_grams, hash_map_size, embedding_size, hidden_size, output_size)
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = optim.Adam(self.model.parameters(), lr=learning_rate)
+        self.eval_sets = {}
 
     def fit(self, train_data, train_freq, train_labels, batch_size):
         self.batch_size = batch_size
-        self.n_train_insts = train_data.shape[0]
         self.train_batches = Batcher(train_data, train_freq, train_labels, self.batch_size)
 
     def train(self, num_epochs):
@@ -50,10 +50,17 @@ class LanguageDetectorManager():
                 train_acc += torch.sum(torch.argmax(output, dim=1) == batch_labels)
 
             if (epoch + 1) % 10 == 0:
-                print(f'Epoch num: [{epoch + 1} / {num_epochs}], Loss: {loss.item()}, Train acc: {train_acc / self.n_train_insts}')
+                print(f'Epoch num: [{epoch + 1} / {num_epochs}], Loss: {loss.item()}, Train acc: {train_acc / self.train_batches.n_insts}')
 
-    def eval(self, eval_data, eval_freq, eval_labels):
-        eval_batches = Batcher(eval_data, eval_freq, eval_labels, self.batch_size)
+    def set_eval_data(self, eval_name, eval_data, eval_freq, eval_labels):
+        self.eval_sets[eval_name] = Batcher(eval_data, eval_freq, eval_labels, self.batch_size)
+
+    def eval(self, eval_name):
+        if eval_name not in self.eval_sets:
+            print("call object.<set_eval_data> first.")
+            return
+        
+        eval_batches = self.eval_sets[eval_name]
 
         test_acc = 0
         for i in range(len(eval_batches)):
@@ -61,4 +68,4 @@ class LanguageDetectorManager():
             output = self.model(batch_idxs, batch_freq)
             test_acc += torch.sum(torch.argmax(output, dim=1) == batch_labels)
 
-        print(f'Test Acc: {test_acc / len(eval_labels)}')
+        print(f'{eval_name.capitalize()} Acc: {test_acc / eval_batches.n_insts}')

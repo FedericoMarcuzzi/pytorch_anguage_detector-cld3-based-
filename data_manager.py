@@ -7,6 +7,7 @@ class Batcher(Dataset):
         labels = torch.tensor(labels, dtype=torch.uint8)
         freq = np.expand_dims(freq, -1)
         self.n_batches = int(np.ceil(data.shape[0] / batch_size))
+        self.n_insts = data.shape[0]
 
         self.list_batch_idxs = []
         self.list_batch_freq = []
